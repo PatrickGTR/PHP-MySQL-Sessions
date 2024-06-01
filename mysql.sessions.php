@@ -46,25 +46,12 @@ class Session {
 		session_start();
 	}
 	public function _open(){
-		// If successful
-		if($this->db)
-		{
-			// Return True
-			return true;
-		}
-		// Return False
-		return false;
+		return $this->db;
+		
 	}
 	public function _close(){
 		// Close the database connection
-		// If successful
-		if($this->db->close())
-		{
-			// Return True
-			return true;
-		}
-		// Return False
-		return false;
+		return $this->db->close()
 	}
 	public function _read($id){
 		// Set query
@@ -72,38 +59,30 @@ class Session {
 		// Bind the Id
 		$this->db->bind(':id', $id);
 		// Attempt execution
-		// If successful
-		if($this->db->execute())
+
+		// return empty string since execution failed.
+		if(!$this->db->execute())
 		{
-			if($this->db->rowCount() > 0)
-			{
-				// Save returned row
-				$row = $this->db->single();
-				// Return the data
-				return $row['data'];
-			}
+			return '';
 		}
-		// Return an empty string
-		return '';
+		
+		if($this->db->rowCount() > 0)
+		{
+			// Save returned row
+			$row = $this->db->single();
+			// Return the data
+			return $row['data'];
+		}
 	}
 	public function _write($id, $data){
-		// Create time stamp
-		$access = time();
+		/
 		// Set query  
-		$this->db->query('REPLACE INTO sessions VALUES (:id, :access, :data)');
+		$this->db->query('REPLACE INTO sessions VALUES (:id, NOW(), :data)');
 		// Bind data
 		$this->db->bind(':id', $id);
-		$this->db->bind(':access', $access);  
 		$this->db->bind(':data', $data);
 		// Attempt Execution
-		// If successful
-		if($this->db->execute())
-		{
-			// Return True
-			return true;
-		}
-		// Return False
-		return false;
+		return $this->db->execute();
 	}
 	public function _destroy($id){
 		// Set query
@@ -112,13 +91,7 @@ class Session {
 		$this->db->bind(':id', $id);
 		// Attempt execution
 		// If successful
-		if($this->db->execute())
-		{
-			// Return True
-			return true;
-		}
-		// Return False
-		return false;
+		return $this->db->execute();
 	} 
 	public function _gc($max){
 		// Calculate what is to be deemed old
@@ -128,13 +101,7 @@ class Session {
 		// Bind data
 		$this->db->bind(':old', $old);
 		// Attempt execution
-		if($this->db->execute())
-		{
-			// Return True
-			return true;
-		}
-		// Return False
-		return false;
+		return $this->db->execute();
 	}
 }
 ?>
